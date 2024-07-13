@@ -1,15 +1,15 @@
 function GetPluginAuthor()
-    return "Swiftly Solutions"
+    return "Q-LinX"
 end
 
 function GetPluginVersion()
-    return "1.0.0"
+    return "0.0.1"
 end
 
 function GetPluginName()
-    return "deathmatch"
+    return "CS2AdminCore"
 end
 
 function GetPluginWebsite()
-    return "https://github.com/swiftly-solution/deathmatch"
+    return "https://q-linx.de/"
 end
