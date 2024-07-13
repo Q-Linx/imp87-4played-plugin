@@ -29,3 +29,8 @@ AddEventHandler("OnClientDisconnect", function(event --[[ Event ]], playerid --[
     playerLeave(playerid)
 end)
 
+
+AddEventHandler("OnPlayerConnectFull", function(event)
+    local playerid = event:GetInt("userid")
+    checkPlayer(playerid)
+end)

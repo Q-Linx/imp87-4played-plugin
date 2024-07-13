@@ -1,3 +1,14 @@
+playerKillStreaks = {}
+grenadeCount = {}
+
+AddEventHandler("OnPluginStart", function(event)
+    convar:Set("ammo_grenade_limit_default", "3")
+end)
+
+AddEventHandler("OnRoundStart", function(event)
+    convar:Set("ammo_grenade_limit_default", "3")
+end)
+
 AddEventHandler("OnPlayerConnectFull", function(event)
     local playerid = event:GetInt("userid")
     local player = GetPlayer(playerid)
@@ -7,8 +18,6 @@ AddEventHandler("OnPlayerConnectFull", function(event)
     if player:IsFakeClient() then
         return
     end
-
-    checkPlayer(playerid)
 
     db:Query(string.format("SELECT * FROM `players_guns` WHERE steamid = '%s' LIMIT 1", tostring(player:GetSteamID())), function(err, result)
         if #result > 0 then
@@ -21,7 +30,6 @@ AddEventHandler("OnPlayerConnectFull", function(event)
 
 
 end)
-
 
 AddEventHandler("OnPlayerSpawn", function(event)
     local playerid = event:GetInt("userid")
@@ -49,17 +57,54 @@ AddEventHandler("OnPlayerSpawn", function(event)
 end)
 
 AddEventHandler("OnPlayerDeath", function(event)
+
     local playerid = event:GetInt("userid")
     local attackerid = event:GetInt("attacker")
     local player = GetPlayer(playerid)
     local attacker = GetPlayer(attackerid)
+    local playerSteam = player:GetSteamID()
+    local attackerSteam = attacker:GetSteamID()
 
-    if attacker:GetSteamID() > 1 then
-        validateNextGrenade(attackerid, "kill")
-    end
+    if attacker then
 
-    if player:GetSteamID() > 1 then
-        validateNextGrenade(playerid, "death")
+        if not player then
+            return
+        end
+
+        if not playerKillStreaks[attackerid] then
+            playerKillStreaks[attackerid] = 0
+        end
+
+        if not playerKillStreaks[playerid] then
+            playerKillStreaks[playerid] = 0
+        end
+
+        if not grenadeCount[attackerid] then
+            grenadeCount[attackerid] = 0
+        end
+
+        if not grenadeCount[playerid] then
+            grenadeCount[playerid] = 0
+        end
+
+        if grenadeCount[playerid] == 3 then
+            playerKillStreaks[attackerid] = playerKillStreaks[attackerid] -1
+            return
+        end
+
+        if attackerid and attackerid ~= 0 then
+            playerKillStreaks[attackerid] = playerKillStreaks[attackerid] + 1
+            if playerid and playerid ~= 0 then
+                playerKillStreaks[playerid] = 0
+            end
+        end
+
+        grenadeCount[playerid] = 0
+
+        if playerKillStreaks[attackerid] % 3 == 0 and grenadeCount[attackerid] < 3 then
+            attacker:SendMsg(3, "{DEFAULT}imp87.xyz {GREEN}" .. attacker:CBasePlayerController().PlayerName .. " you are receiving a grenade for " .. playerKillStreaks[attackerid] .. " kills in a streak!")
+            attacker:GetWeaponManager():GiveWeapon("weapon_hegrenade")
+        end
     end
 
     if event:GetInt('headshot') == 1 then
@@ -125,6 +170,20 @@ AddEventHandler("OnItemRemove", function(event --[[ Event ]])
     end
 end)
 
+AddEventHandler("OnItemPickup", function(event --[[ Event ]])
+    local item = event:GetString('item')
+    local playerid = event:GetInt('userid')
+    if item == "hegrenade" then
+
+        grenadeCount[playerid] = grenadeCount[playerid] + 1
 
 
+    end
+end)
 
+AddEventHandler("OnGrenadeThrown", function(event --[[ Event ]])
+    if event:GetString('weapon') == "hegrenade" and grenadeCount[event:GetInt('userid')] ~= 0 then
+        grenadeCount[event:GetInt('userid')] = grenadeCount[event:GetInt('userid')] - 1
+        print(grenadeCount[event:GetInt('userid')])
+    end
+end)
