@@ -1,0 +1,6 @@
+{
+    "prefix": "[{LIME}SWIFTLY{DEFAULT}]",
+    "RegenHP": 5,
+    "RegenHP_headshot": 8,
+    "tablename": "players_guns"
+}

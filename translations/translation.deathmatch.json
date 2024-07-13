@@ -1,0 +1,6 @@
+{
+    "changed.weapon": {
+        "en": "You have changed your weapon to: {RED}{WEAPON_NAME}{DEFAULT}",
+        "ro": "You have changed your weapon to: {RED}{WEAPON_NAME}{DEFAULT}"
+    }
+}
