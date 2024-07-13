@@ -1,15 +1,11 @@
 commands:Register("ranks", function(playerid)
-    print('ranks selected')
-    print('PlayerID: ' .. playerid)
     local player = GetPlayer(playerid)
     if not player then
-        print('false')
+        return
     end
-    print(string.format("SELECT name, score, kills, deaths, player_rank, total_players FROM ( SELECT name, score, kills, deaths, DENSE_RANK() OVER (ORDER BY score DESC) AS player_rank, COUNT(*) OVER () AS total_players FROM player_stats ) AS ranked_players WHERE steamID64 = '%s';", tostring(player:GetSteamID())))
     db:Query(string.format("SELECT NAME, score, kills, deaths, player_rank, total_players, steamID64 FROM (SELECT NAME, score, kills, deaths, steamID64, DENSE_RANK() OVER (ORDER BY score DESC) AS player_rank, COUNT(*) OVER () AS total_players FROM player_stats) AS ranked_players WHERE steamID64 = '%s';", tostring(player:GetSteamID())), function(err, result)
         if #result == 0 then
-            print(#result)
-            print('db query false')
+            return
         else
             local kd_ratio = result[1].kills / result[1].deaths
 

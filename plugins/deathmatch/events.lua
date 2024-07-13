@@ -23,8 +23,6 @@ AddEventHandler("OnPlayerConnectFull", function(event)
 end)
 
 
-
-
 AddEventHandler("OnPlayerSpawn", function(event)
     local playerid = event:GetInt("userid")
     local player = GetPlayer(playerid)
@@ -55,7 +53,14 @@ AddEventHandler("OnPlayerDeath", function(event)
     local attackerid = event:GetInt("attacker")
     local player = GetPlayer(playerid)
     local attacker = GetPlayer(attackerid)
-    print(player:CBaseEntity())
+
+    if attacker:GetSteamID() > 1 then
+        validateNextGrenade(attackerid, "kill")
+    end
+
+    if player:GetSteamID() > 1 then
+        validateNextGrenade(playerid, "death")
+    end
 
     if event:GetInt('headshot') == 1 then
         local RegenHP = config:Fetch("deathmatch.RegenHP_headshot")
@@ -106,21 +111,20 @@ end)
 AddEventHandler("OnItemRemove", function(event --[[ Event ]])
     local item = event:GetString("item")
     local player = GetPlayer(event:GetInt("userid"))  -- Beispiel, wie man den Spieler vom Event bekommt
-    print('Got Item')
     if player then
         local weaponManager = player:GetWeaponManager()
         local weapons = weaponManager:GetWeapons()
-        print('Player found')
         for i = 1, #weapons do
             local weaponClassname = CBaseEntity(weapons[i]:CBasePlayerWeapon():ToPtr()):GetClassname()
             if weaponClassname == item then
                 -- Entferne das Item aus der Welt
                 CBaseEntity(weapons[i]:CBasePlayerWeapon():ToPtr()):Remove()
-                print("Removed item: " .. weaponClassname)
                 break
             end
         end
     end
 end)
+
+
 
 
